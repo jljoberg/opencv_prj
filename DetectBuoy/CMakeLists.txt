@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 2.8)
+project( DetectBuoy )
+find_package(OpenCV REQUIRED)
+include_directories( ${OpenCV_INCLUDE_DIRS} )
+add_executable(  DetectBuoy   DetectBuoy.cpp )
+target_link_libraries(  DetectBuoy  ${OpenCV_LIBS} )

@@ -1,0 +1,3 @@
+/home/jens/opencv/projects/DisplayImage/build/CMakeFiles/rebuild_cache.dir
+/home/jens/opencv/projects/DisplayImage/build/CMakeFiles/DisplayImage.dir
+/home/jens/opencv/projects/DisplayImage/build/CMakeFiles/edit_cache.dir

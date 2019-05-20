@@ -1,0 +1,86 @@
+#include <opencv2/core.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/highgui.hpp>
+
+#include <opencv2/imgproc.hpp>
+
+#include <iostream>
+#include <chrono>
+
+#include "methods/processing.h"
+
+
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv)
+{
+  if(argc != 2)
+  {
+    cout << "Usage: ./[name] directory"; 
+    return -1;
+  }
+  const char* window_name = "Display window";
+  namedWindow(window_name, WINDOW_AUTOSIZE);
+
+  cv::String imDir = argv[1];
+  vector<cv::String> files;
+  cv::glob(imDir, files);
+
+  for(int i=0; i<files.size(); i++)
+  {
+    cv::String file = files[i];
+    if(!((file.find("im_")==cv::String::npos) | (file.find(".bmp")==cv::String::npos)))
+    {
+      Mat img_color = imread(file, IMREAD_COLOR);
+      Mat img_orig = imread(file, IMREAD_GRAYSCALE);
+      Mat img = img_orig.clone();
+      auto t0 = std::chrono::high_resolution_clock::now();
+      process_bin_erode_dilate(img, window_name);
+      auto t1 = std::chrono::high_resolution_clock::now();
+      //cout << "Processing time: "
+      //     << chrono::duration_cast<chrono::milliseconds>(t1-t0).count() << " ms\n";
+
+      vector<vector<Point>> blobPts;
+      vector<Vec4i> hierarchy;
+      Mat centroids, blobs;
+      Mat blobStats;
+      int nBlobs = connectedComponentsWithStats(img, blobs, blobStats, centroids, 4, CV_32S);
+      //findContours(img, blobPts, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0,0));
+      cvtColor(img, img_color, COLOR_GRAY2RGB);
+      for(int label = 1; label<nBlobs; label++)
+      {
+        if( blobStats.at<int>(label, CC_STAT_AREA) > 10000)
+        {
+          continue;
+        }
+        //int t =blobStats(label,CC_STAT_TOP);
+        Point topLeft(blobStats.at<int>(label, CC_STAT_LEFT), blobStats.at<int>(label,CC_STAT_TOP));
+        Point botRight( blobStats.at<int>(label,CC_STAT_LEFT)+blobStats.at<int>(label,CC_STAT_WIDTH)-1,
+                        blobStats.at<int>(label,CC_STAT_TOP)+blobStats.at<int>(label,CC_STAT_HEIGHT)-1);
+        //Rect bbox = boundingRect(blobPts[label]);
+
+        Rect bbox = boundingRect(vector<Point>{topLeft, botRight});
+        
+        vector<Vec3f> circles;
+        Mat roi = img_orig(bbox);
+        HoughCircles(roi,circles, HOUGH_GRADIENT, 1, 50,roi.rows/4,10,10,50);
+        for(int circleNum=0; circleNum < circles.size(); circleNum ++)
+        {
+          cout << "Circle is found\n";
+          Point center(cvRound(circles[circleNum][0]),cvRound(circles[circleNum][1]) );
+          int radius = cvRound(circles[circleNum][2]);
+          circle(img_color,center+bbox.tl(),radius, Scalar(0,0,255),3,8,0);
+        }
+
+        //rectangle(img_color, topLeft, botRight, Scalar(0,255,0), 2,8,0); 
+        //rectangle(img_color, bbox.tl(), bbox.br(), Scalar(0,255,0), 2,8,0); 
+      }
+      imshow(window_name, img_color);
+      waitKey(1);
+    }
+  }
+
+}
+
+

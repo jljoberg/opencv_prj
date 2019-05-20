@@ -1,0 +1,3 @@
+/home/jens/opencv/projects/DetectBuoy/build/CMakeFiles/rebuild_cache.dir
+/home/jens/opencv/projects/DetectBuoy/build/CMakeFiles/DetectBuoy.dir
+/home/jens/opencv/projects/DetectBuoy/build/CMakeFiles/edit_cache.dir
