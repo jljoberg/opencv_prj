@@ -1,0 +1,2 @@
+cmake -DHAVE_GTK=1 -DWITH_QT=OFF -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_python=OFF -DWITH_GTK_2_X=ON -DCMAKE_TOOLCHAIN_FILE=../platforms/linux/arm-gnueabi.toolchain.cmake -DCMAKE_INSTALL_PREFIX=/usr/local/armhf ..
+
